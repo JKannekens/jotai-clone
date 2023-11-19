@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 interface Atom<AtomType> {
   get: () => AtomType;
@@ -29,15 +29,5 @@ export const atom = <AtomType>(initialValue: AtomType): Atom<AtomType> => {
 export const useAtom = <AtomType>(
   atom: Atom<AtomType>
 ): [AtomType, (newValue: AtomType) => void] => {
-  const [value, setValue] = useState(atom.get());
-
-  useEffect(() => {
-    const unsubscribe = atom.subscribe(setValue);
-
-    return () => {
-      unsubscribe();
-    };
-  }, [atom]);
-
-  return [value, atom.set];
+  return [useSyncExternalStore(atom.subscribe, atom.get), atom.set];
 };
